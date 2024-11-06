@@ -1,5 +1,5 @@
 import { IconLayer } from "@deck.gl/layers";
-import carIcon from "../assets/car.png";
+import carIcon from "../assets/restaurant.png";
 
 const ICON_MAPPING = {
   marker: { x: 0, y: 0, width: 128, height: 59 },
