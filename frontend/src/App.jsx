@@ -1,15 +1,54 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import Map from "./components/Map";
+import DropdownMenu from './components/DropdownMenu';
+import MenuContainer from './components/MenuContainer';
+import BillContainer from "./components/BillContainer";
+import menuData from './data/menuData.json'; 
 function App() {
-  const [count, setCount] = useState(0);
+  const [selectedRestaurant, setSelectedRestaurant] = useState('');
+  const [menuItems, setMenuItems] = useState([]);
+  const [selectedMenuItems, setSelectedMenuItems] = useState([]); // Array to store selected menu items
+
+  useEffect(() => {
+  if (selectedRestaurant) {
+    // Fetch menu items based on the selected restaurant
+    const menu = menuData[selectedRestaurant] || [];
+    console.log("Selected Menu: ", menu);  // Log the menu to check
+    setMenuItems(menu);
+  } else {
+    setMenuItems([]);
+  }
+  }, [selectedRestaurant]);
+
+  const handleMenuItemSelection = (itemId, isChecked) => {
+    if (isChecked) {
+      // Add item to selected list if checked
+      setSelectedMenuItems((prevItems) => [...prevItems, itemId]);
+    } else {
+      // Remove item from selected list if unchecked
+      setSelectedMenuItems((prevItems) => prevItems.filter((id) => id !== itemId));
+    }
+  };
 
   return (
     <>
-      <h1 className="z-10 absolute font-semibold decoration-sky-500">
-        True Map
-      </h1>
-      <Map />
+      <h1 className="title">YumBoXX</h1>
+      <div className="container">
+        <div className="map-container">
+          <Map />
+        </div>
+        <div className="sidebar">
+          <DropdownMenu setSelectedRestaurant={setSelectedRestaurant} />
+          <MenuContainer
+             menuItems={menuItems}
+             selectedMenuItems={selectedMenuItems}
+             handleMenuItemSelection={handleMenuItemSelection} // Pass the function to update selected items
+          />
+          <BillContainer
+          />
+        </div>
+      </div>
     </>
   );
 }

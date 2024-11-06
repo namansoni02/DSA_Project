@@ -1,0 +1,58 @@
+{
+  "McDonalds": [
+    { "id": 1, "name": "Big Mac", "price": 189 },
+    { "id": 2, "name": "McBurger", "price": 149 },
+    { "id": 3, "name": "French Fries", "price": 129 },
+    { "id": 4, "name": "McFlurry", "price": 149 },
+    { "id": 5, "name": "Peri Peri Fries", "price": 149 }
+  ],
+  "Pizza Hut": [
+    { "id": 1, "name": "Pepperoni Pizza", "price": 279 },
+    { "id": 2, "name": "Margherita Pizza", "price": 249 },
+    { "id": 3, "name": "Veggie Supreme", "price": 349 },
+    { "id": 4, "name": "Garlic Breadsticks", "price": 149 },
+    { "id": 5, "name": "Cheese Sticks", "price": 119 }
+  ],
+  "Starbucks": [
+    { "id": 1, "name": "Caffè Latte", "price": 319 },
+    { "id": 2, "name": "Caramel Macchiato", "price": 369 },
+    { "id": 3, "name": "Vanilla Bean Frappuccino", "price": 399 },
+    { "id": 4, "name": "Iced Coffee", "price": 199 },
+    { "id": 5, "name": "Chocolate Croissant", "price": 249 }
+  ],
+  "Maharaja Feast": [
+    { "id": 1, "name": "Panner Lababdar", "price": 259 },
+    { "id": 2, "name": "Paneer Tikka", "price": 239 },
+    { "id": 3, "name": "Matar Paneer", "price": 219 },
+    { "id": 4, "name": "Dal Makhani", "price": 199 },
+    { "id": 5, "name": "Naan", "price": 79 }
+  ],
+  "Royal Tandoor": [
+    { "id": 1, "name": "Paneer Tikka", "price": 499 },
+    { "id": 2, "name": "Hara Bhara Kebab", "price": 399 },
+    { "id": 3, "name": "Vegetable Seekh Kebab", "price": 449 },
+    { "id": 4, "name": "Stuffed Paneer Tikka", "price": 599 },
+    { "id": 5, "name": "Garlic Naan", "price": 129 }
+  ],  
+  "Biryani Bazaar": [
+    { "id": 1, "name": "Paneer Biryani", "price": 499 },
+    { "id": 2, "name": "Veg Biryani", "price": 499 },
+    { "id": 3, "name": "Mushroom Biryani", "price": 549 },
+    { "id": 4, "name": "Veg Pulao", "price": 349 },
+    { "id": 5, "name": "Raita", "price": 129 }
+  ],
+  "Spice Junction": [
+    { "id": 1, "name": "Paneer Butter Masala", "price": 579 },
+    { "id": 2, "name": "Aloo Gobi", "price": 299 },
+    { "id": 3, "name": "Baingan Bharta", "price": 399 },
+    { "id": 4, "name": "Palak Paneer", "price": 499 },
+    { "id": 5, "name": "Chapati", "price": 49 }
+  ],
+  "Shucks The Cafe": [
+    { "id": 1, "name": "Vegetable Pasta Alfredo", "price": 499 },
+    { "id": 2, "name": "Grilled Veg Sandwich", "price": 349 },
+    { "id": 3, "name": "Vegetable Soup", "price": 249 },
+    { "id": 4, "name": "Margherita Pizza", "price": 459 },
+    { "id": 5, "name": "Blueberry Muffin", "price": 169 }
+  ]
+}
