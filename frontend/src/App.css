@@ -8,7 +8,8 @@
 .title {
   font-size: 3rem;  
   font-weight: bold;
-  margin: 20px;
+  margin-top: 10px;
+  margin-bottom: 20px;
   display: block;
   text-align: center;
   color: #edebea; 
@@ -24,13 +25,28 @@
   gap: 2rem; /* Space between map and sidebar */
 }
 
+
+.left-container{
+  display: flex;
+  flex-direction: column; /* Stack map and delivery containers vertically */
+  width : 50vw; 
+  height: 90vh; 
+  order : 2
+}
+
+.delivery-container{
+  border: 2px solid white;
+  margin-top: 20px;
+  padding: 1rem; /* Add padding inside the container */
+  border: 2px solid #ccc; /* Optional border for the delivery container */
+  height: 30vh;
+}
+
 .map-container {
   width: 50vw; /* 50% of the viewport width */
   height: 60vh; /* Adjust height to control the vertical space */
   position: relative;
   border: 2px solid coral; /* Set border */
-  z-index: 1; /* Keep it above the background elements */
-  order: 2; /* Move the map to the right side */
 }
 
 .sidebar {
@@ -80,7 +96,7 @@
 }
 
 .menu-container{
-  border : 2px solid white;
+  border : 2px solid #edebea;
   height : 35vh;
   box-shadow: 5px;
 }
@@ -106,17 +122,65 @@
   padding: 1rem;
   margin-top: 2rem;
   border-radius: 8px;
-  border: 2px solid white;
+  border: 2px solid #edebea;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   text-align: center;
 }
 
-.bill-container h2 {
-  font-size: 1.5rem;
+.bill-container h1 {
+  font-size: 2rem;
   margin-bottom: 10px;
+  font-weight: bold;
 }
 
-.bill-container p {
-  font-size: 2rem;
+.bill-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.bill-row {
+  display: flex;
+  justify-content: space-between; /* Spread across the container */
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd; /* Light border between rows */
+}
+
+.bill-row span {
+  font-size: 1rem;
+  color: #edebea;
+}
+
+.bill-row.total {
+  font-size: 1.2rem;
+  font-weight: bold;
   color: #FF6600;
+  margin-top: 10px;
+}
+
+.bill-row.total span {
+  font-weight: bold;
+}
+
+.bill-row:last-child {
+  border-bottom: none;
+}
+.pay-now-container {
+  text-align: center;
+  margin-top: 20px; /* Add margin top to give space from BillContainer */
+}
+
+.pay-now-btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  color: white;
+  background-color: #FF6600;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 20px; /* Add some margin-top if necessary */
+}
+
+.pay-now-btn:hover {
+  background-color: #e65c00;
 }

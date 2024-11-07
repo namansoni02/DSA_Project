@@ -31,22 +31,40 @@ function App() {
     }
   };
 
+  const calculateTotal = () => {
+    return selectedMenuItems.reduce((total, itemId) => {
+      const item = menuItems.find(item => item.id === itemId);
+      return total + (item ? item.price : 0);
+    }, 0);
+  };
+
   return (
     <>
       <h1 className="title">YumBoXX</h1>
       <div className="container">
-        <div className="map-container">
-          <Map />
+        <div className = 'left-container'>
+          <div className="map-container">
+            <Map />
+          </div>
+          <div className="delivery-container">
+
+          </div>
         </div>
         <div className="sidebar">
           <DropdownMenu setSelectedRestaurant={setSelectedRestaurant} />
           <MenuContainer
-             menuItems={menuItems}
-             selectedMenuItems={selectedMenuItems}
-             handleMenuItemSelection={handleMenuItemSelection} // Pass the function to update selected items
+              menuItems={menuItems}
+              selectedMenuItems={selectedMenuItems}
+              handleMenuItemSelection={handleMenuItemSelection} // Pass the function to update selected items
           />
-          <BillContainer
+          <BillContainer 
+              total={calculateTotal()}
           />
+          <div className="pay-now-container">
+            <button className="pay-now-btn">
+                Pay Now
+            </button>
+          </div>
         </div>
       </div>
     </>
