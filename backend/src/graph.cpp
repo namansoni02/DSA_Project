@@ -31,23 +31,33 @@ double Graph::haversineDistance(double lat1, double lon1, double lat2, double lo
 
 double Graph::calculateAngle(const std::pair<double, double>& prev, const std::pair<double, double>& curr, const std::pair<double, double>& next,double prevAngle) const {
 
+    // current latitude in radians
     double lat2 = curr.first * M_PI / 180;
+    // current longitude in radians
     double lon2 = curr.second * M_PI / 180;
+    // next latitude in radians
     double lat3 = next.first * M_PI / 180;
+    // next longitude in radians
     double lon3 = next.second * M_PI / 180;
 
+     // Calculate the angle (bearing) from the current point to the next point using spherical trigonometry
     double angle = std::atan2(
         std::sin(lon3 - lon2) * std::cos(lat3),
         std::cos(lat2) * std::sin(lat3) - std::sin(lat2) * std::cos(lat3) * std::cos(lon3 - lon2)
     );
 
+   //fmod function normalizes this angle to a 0-360° range by adding 360 and then applying modulo 360.
     double bearing = std::fmod((angle * 180 / M_PI + 360), 360);
 
     // Adjust the angle to be smooth with the previous angle
     double angleDiff = bearing - prevAngle;
+     // Adjust the bearing to ensure a smooth transition from the previous angle
+    // If the difference is greater than 180, reduce the angle by 360 to avoid a large jump
     if (angleDiff > 180) {
         bearing -= 360;
-    } else if (angleDiff < -180) {
+    } 
+    // If the difference is less than -180, increase the angle by 360 to avoid a large jump
+    else if (angleDiff < -180) {
         bearing += 360;
     }
 
