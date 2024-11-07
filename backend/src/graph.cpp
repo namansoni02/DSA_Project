@@ -6,18 +6,26 @@
 #include <iostream>
 
 // Haversine distance calculation
-double Graph::haversineDistance(double lat1, double lon1, double lat2, double lon2) const {
+double Graph::haversineDistance(double lat1, double lon1, double lat2, double lon2) const 
+{
     const double R = 6371000; // Earth radius in meters
+    // Convert latitude and longitude from degrees to radians for mathematical calculations
     const double phi1 = lat1 * M_PI / 180;
     const double phi2 = lat2 * M_PI / 180;
+
+    //Calculation of distance using Haversian Formula
+    // Calculate the difference between the latitudes and longitudes in radians
     const double deltaPhi = (lat2 - lat1) * M_PI / 180;
     const double deltaLambda = (lon2 - lon1) * M_PI / 180;
 
     const double a = std::sin(deltaPhi/2) * std::sin(deltaPhi/2) +
                     std::cos(phi1) * std::cos(phi2) *
                     std::sin(deltaLambda/2) * std::sin(deltaLambda/2);
+
+      // Calculate the central angle between the two points
     const double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
 
+    // Multiply the central angle by the radius of the Earth to get the distance in meters
     return R * c;
 }
 
