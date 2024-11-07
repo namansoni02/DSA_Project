@@ -33,8 +33,14 @@ private:
     std::unordered_map<std::pair<int64_t, int64_t>, double, PairHash> distanceCache;
 
     // Private helper methods
+
+    //to calculate the distance between two points on the Earth's surface using the Haversine formula, which takes into account the spherical nature of the Earth.
     double haversineDistance(double lat1, double lon1, double lat2, double lon2) const;
+
+    //TO calculate the angle between three points (prev, curr, next)
     double calculateAngle(const std::pair<double, double>& prev, const std::pair<double, double>& curr, const std::pair<double, double>& next, double prevAngle) const;
+
+    // Estimates the cost or distance from the current node to the goal node for pathfinding.
     double heuristic(int64_t node, int64_t goal) const;
 
 public:
@@ -91,7 +97,8 @@ struct GeoCoord {
     double lon;
 
     GeoCoord(double latitude, double longitude) 
-        : lat(latitude), lon(longitude) {
+        : lat(latitude), lon(longitude) // latitude range : -90 to 90 degrees and longitude range : -180 to 180 degrees
+{
         if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
             throw std::invalid_argument("Invalid geographic coordinates");
         }
