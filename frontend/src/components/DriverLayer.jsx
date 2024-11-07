@@ -2,7 +2,7 @@ import { IconLayer } from "@deck.gl/layers";
 import carIcon from "../assets/restaurant.png";
 
 const ICON_MAPPING = {
-  marker: { x: 0, y: 0, width: 128, height: 59 },
+  marker: { x: 0, y: 0, width: 128, height: 128 },
 };
 
 /**
@@ -29,9 +29,9 @@ export function createDriverLayer({ drivers = [], colors = {}, options = {} }) {
     iconAtlas: carIcon,
     iconMapping: ICON_MAPPING,
     getIcon: (d) => "marker",
-    sizeScale: 5,
     getPosition: (d) => d.coordinates,
     getSize: (d) => 5,
+    sizeScale: 5,
     getColor: (d) => d.color,
     ...options,
   });

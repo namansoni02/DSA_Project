@@ -9,7 +9,8 @@ import {
   getMapGraph,
   getNearestNode,
 } from "../services/MapService";
-import { spawnDrivers, DistributionType } from "../services/spawnDrivers";
+
+import { spawnDrivers, assignRestaurantsToDrivers } from "../services/spawnDrivers";
 import { createDriverLayer } from "./DriverLayer";
 import PathLayer from "./PathLayer";
 import { useEffect, useRef, useState } from "react";
@@ -129,7 +130,9 @@ export default function Map() {
 
     const newDrivers = await spawnDrivers(node.lat, node.lon, { count: 8 });
     console.log("Drivers spawned:", newDrivers);
-    setDrivers((prev) => [...newDrivers]);
+    const driversWithRestaurants = assignRestaurantsToDrivers(newDrivers);
+    setDrivers(driversWithRestaurants);
+    console.log(driversWithRestaurants)
 
     setStartNode(node);
     setEndNode(null);

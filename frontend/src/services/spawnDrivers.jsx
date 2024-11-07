@@ -1,5 +1,6 @@
 import { fetchOverpassData } from "../utils/api";
 import { createGeoJSONCircle } from "../utils/helpers";
+import menuData from '../data/menuData.json'; // Import your JSON file
 
 /**
  * Distribution types for node selection
@@ -302,9 +303,28 @@ export async function spawnDrivers(latitude, longitude, options = {}) {
     });
 
     // Select nodes based on distribution
+    console.log(validNodes);
     return selectNodes(validNodes, options, latitude, longitude);
   } catch (error) {
     console.error("Error in spawnDrivers:", error);
     throw error;
   }
+}
+
+
+export function assignRestaurantsToDrivers(drivers) {
+  // Get the restaurant names from the keys of menuData
+  const restaurantNames = Object.keys(menuData);
+  
+  // Shuffle the restaurant names
+  const shuffledNames = [...restaurantNames].sort(() => 0.5 - Math.random());
+  
+  // Map each driver to a restaurant, looping if there are more drivers than restaurants
+  return drivers.map((driver, index) => ({
+    ...driver,
+    restaurant: {
+      name: shuffledNames[index % shuffledNames.length],
+      menu: menuData[shuffledNames[index % shuffledNames.length]], // Assign menu data
+    }
+  }));
 }
