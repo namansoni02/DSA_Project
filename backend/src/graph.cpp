@@ -4,60 +4,44 @@
 #include <stdexcept>
 #include <limits>
 #include <iostream>
+#include <cmath>
+
+using namespace std;
 
 // Haversine distance calculation
-double Graph::haversineDistance(double lat1, double lon1, double lat2, double lon2) const 
-{
+double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
     const double R = 6371000; // Earth radius in meters
-    // Convert latitude and longitude from degrees to radians for mathematical calculations
     const double phi1 = lat1 * M_PI / 180;
     const double phi2 = lat2 * M_PI / 180;
-
-    //Calculation of distance using Haversian Formula
-    // Calculate the difference between the latitudes and longitudes in radians
     const double deltaPhi = (lat2 - lat1) * M_PI / 180;
     const double deltaLambda = (lon2 - lon1) * M_PI / 180;
 
-    const double a = std::sin(deltaPhi/2) * std::sin(deltaPhi/2) +
-                    std::cos(phi1) * std::cos(phi2) *
-                    std::sin(deltaLambda/2) * std::sin(deltaLambda/2);
+    const double a = sin(deltaPhi / 2) * sin(deltaPhi / 2) +
+                     cos(phi1) * cos(phi2) *
+                     sin(deltaLambda / 2) * sin(deltaLambda / 2);
 
-      // Calculate the central angle between the two points
-    const double c = 2 * std::atan2(std::sqrt(a), std::sqrt(1-a));
-
-    // Multiply the central angle by the radius of the Earth to get the distance in meters
+    const double c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c;
 }
 
-double Graph::calculateAngle(const std::pair<double, double>& prev, const std::pair<double, double>& curr, const std::pair<double, double>& next,double prevAngle) const {
-
-    // current latitude in radians
+double calculateAngle(const pair<double, double>& prev, const pair<double, double>& curr, 
+                      const pair<double, double>& next, double prevAngle) {
     double lat2 = curr.first * M_PI / 180;
-    // current longitude in radians
     double lon2 = curr.second * M_PI / 180;
-    // next latitude in radians
     double lat3 = next.first * M_PI / 180;
-    // next longitude in radians
     double lon3 = next.second * M_PI / 180;
 
-     // Calculate the angle (bearing) from the current point to the next point using spherical trigonometry
-    double angle = std::atan2(
-        std::sin(lon3 - lon2) * std::cos(lat3),
-        std::cos(lat2) * std::sin(lat3) - std::sin(lat2) * std::cos(lat3) * std::cos(lon3 - lon2)
+    double angle = atan2(
+        sin(lon3 - lon2) * cos(lat3),
+        cos(lat2) * sin(lat3) - sin(lat2) * cos(lat3) * cos(lon3 - lon2)
     );
 
-   //fmod function normalizes this angle to a 0-360° range by adding 360 and then applying modulo 360.
-    double bearing = std::fmod((angle * 180 / M_PI + 360), 360);
-
-    // Adjust the angle to be smooth with the previous angle
+    double bearing = fmod((angle * 180 / M_PI + 360), 360);
     double angleDiff = bearing - prevAngle;
-     // Adjust the bearing to ensure a smooth transition from the previous angle
-    // If the difference is greater than 180, reduce the angle by 360 to avoid a large jump
+    
     if (angleDiff > 180) {
         bearing -= 360;
-    } 
-    // If the difference is less than -180, increase the angle by 360 to avoid a large jump
-    else if (angleDiff < -180) {
+    } else if (angleDiff < -180) {
         bearing += 360;
     }
 
@@ -65,7 +49,7 @@ double Graph::calculateAngle(const std::pair<double, double>& prev, const std::p
 }
 
 // A* heuristic function
-double Graph::heuristic(int64_t node, int64_t goal) const {
+double heuristic(int64_t node, int64_t goal, const unordered_map<int64_t, pair<double, double>>& nodes) {
     try {
         const auto& node_coords = nodes.at(node);
         const auto& goal_coords = nodes.at(goal);
@@ -73,20 +57,25 @@ double Graph::heuristic(int64_t node, int64_t goal) const {
             node_coords.first, node_coords.second,
             goal_coords.first, goal_coords.second
         );
-    } catch (const std::out_of_range&) {
-        throw std::runtime_error("Invalid node ID in heuristic calculation");
+    } catch (const out_of_range&) {
+        throw runtime_error("Invalid node ID in heuristic calculation");
     }
 }
 
-void Graph::loadFromJSON(const json& data) {
+void loadFromJSON(const json& data, 
+                  unordered_map<int64_t, pair<double, double>>& nodes, 
+                  unordered_map<int64_t, vector<pair<int64_t, double>>>& edges, 
+                  unordered_map<pair<int64_t, int64_t>, double>& distanceCache) {
     try {
         // Clear existing data
-        clear();
+        nodes.clear();
+        edges.clear();
+        distanceCache.clear();
 
         // Pre-allocate space
         auto& elements = data["elements"];
         nodes.reserve(elements.size());
-        
+
         // First pass: Load all nodes
         for (auto& element : elements) {
             if (element["type"] == "node") {
@@ -95,7 +84,7 @@ void Graph::loadFromJSON(const json& data) {
                 double lon = element["lon"];
                 // Validate coordinates
                 if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
-                    throw std::invalid_argument("Invalid coordinates in node " + std::to_string(id));
+                    throw invalid_argument("Invalid coordinates in node " + to_string(id));
                 }
                 
                 nodes[id] = {lat, lon};
@@ -154,13 +143,16 @@ void Graph::loadFromJSON(const json& data) {
         }
 
     } catch (const json::exception& e) {
-        throw std::runtime_error("JSON parsing error: " + std::string(e.what()));
-    } catch (const std::exception& e) {
-        throw std::runtime_error("Error loading graph: " + std::string(e.what()));
+        throw runtime_error("JSON parsing error: " + string(e.what()));
+    } catch (const exception& e) {
+        throw runtime_error("Error loading graph: " + string(e.what()));
     }
 }
 
-std::vector<json> Graph::findPath(const json& start, const json& end) {
+vector<json> findPath(const json& start, const json& end, 
+                      const unordered_map<int64_t, pair<double, double>>& nodes, 
+                      unordered_map<int64_t, vector<pair<int64_t, double>>>& edges, 
+                      unordered_map<pair<int64_t, int64_t>, double>& distanceCache) {
     // Validate input nodes
     if (!nodes.count(start["id"]) || !nodes.count(end["id"])) {
         return {};
@@ -168,33 +160,28 @@ std::vector<json> Graph::findPath(const json& start, const json& end) {
 
     // Custom comparator for the priority queue
     struct CompareNode {
-        bool operator()(const std::pair<double, int64_t>& a, 
-                       const std::pair<double, int64_t>& b) const {
+        bool operator()(const pair<double, int64_t>& a, 
+                       const pair<double, int64_t>& b) const {
             return a.first > b.first;
         }
     };
 
     // Initialize data structures
-    std::unordered_map<int64_t, double> gScore;
-    std::unordered_map<int64_t, int64_t> prev;
-    std::priority_queue<
-        std::pair<double, int64_t>,
-        std::vector<std::pair<double, int64_t>>,
-        CompareNode
-    > pq;
+    unordered_map<int64_t, double> gScore;
+    unordered_map<int64_t, int64_t> prev;
+    priority_queue<pair<double, int64_t>, vector<pair<double, int64_t>>, CompareNode> pq;
 
     // Initialize scores
     gScore.reserve(nodes.size());
     for (const auto& node : nodes) {
-        gScore[node.first] = std::numeric_limits<double>::infinity();
+        gScore[node.first] = numeric_limits<double>::infinity();
     }
     gScore[start["id"]] = 0;
 
     // Initialize priority queue with start node
-    pq.push({heuristic(start["id"], end["id"]), start["id"]});
+    pq.push({heuristic(start["id"], end["id"], nodes), start["id"]});
 
     // A* algorithm
-    
     while (!pq.empty()) {
         int64_t current = pq.top().second;
         pq.pop();
@@ -212,19 +199,19 @@ std::vector<json> Graph::findPath(const json& start, const json& end) {
             if (newScore < gScore[next]) {
                 prev[next] = current;
                 gScore[next] = newScore;
-                double priority = newScore + heuristic(next, end["id"]);
+                double priority = newScore + heuristic(next, end["id"], nodes);
                 pq.push({priority, next});
             }
         }
     }
 
     // Check if path exists
-    if (gScore[end["id"]] == std::numeric_limits<double>::infinity()) {
+    if (gScore[end["id"]] == numeric_limits<double>::infinity()) {
         return {};
     }
 
     // Reconstruct path
-    std::vector<json> path;
+    vector<json> path;
     path.reserve(nodes.size() / 4);  // Reasonable initial capacity
     
     double prevAngle = 0.0;
@@ -234,7 +221,7 @@ std::vector<json> Graph::findPath(const json& start, const json& end) {
         
         int64_t prevNode = it->second;
         double distance = distanceCache[{prevNode, at}];
-        double angle = calculateAngle(nodes[prevNode], nodes[at], nodes[it->second], prevAngle);
+        double angle = calculateAngle(nodes.at(prevNode), nodes.at(at), nodes.at(it->second), prevAngle);
         
         path.push_back(json{
             {"id", at},
@@ -256,11 +243,13 @@ std::vector<json> Graph::findPath(const json& start, const json& end) {
         {"angle", 0.0}
     });
     
-    std::reverse(path.begin(), path.end());
+    reverse(path.begin(), path.end());
     return path;
 }
 
-json Graph::getPathState() const {
+json getPathState(const unordered_map<int64_t, pair<double, double>>& nodes, 
+                  const unordered_map<int64_t, vector<pair<int64_t, double>>>& edges, 
+                  const unordered_map<pair<int64_t, int64_t>, double>& distanceCache) {
     json state = {
         {"node_count", nodes.size()},
         {"edge_count", edges.size()},
@@ -273,7 +262,7 @@ json Graph::getPathState() const {
         size_t max_edges = 0;
         for (const auto& [_, edge_list] : edges) {
             total_edges += edge_list.size();
-            max_edges = std::max(max_edges, edge_list.size());
+            max_edges = max(max_edges, edge_list.size());
         }
 
         state["average_edges_per_node"] = static_cast<double>(total_edges) / nodes.size();
@@ -283,9 +272,9 @@ json Graph::getPathState() const {
     return state;
 }
 
-
-std::string Graph::printGraph() const {
-    std::stringstream ss;
+string printGraph(const unordered_map<int64_t, pair<double, double>>& nodes, 
+                  const unordered_map<int64_t, vector<pair<int64_t, double>>>& edges) {
+    stringstream ss;
     ss << "Graph Structure:\n";
     ss << "===============\n\n";
     
@@ -293,8 +282,7 @@ std::string Graph::printGraph() const {
     ss << "Nodes (" << nodes.size() << " total):\n";
     ss << "-----------------\n";
     for (const auto& [id, coords] : nodes) {
-        ss << "Node " << id << ": ("
-           << std::fixed << std::setprecision(6) 
+        ss << "Node " << id << ": (" << fixed << setprecision(6) 
            << coords.first << ", " << coords.second << ")\n";
     }
     
@@ -304,8 +292,7 @@ std::string Graph::printGraph() const {
     for (const auto& [src, destinations] : edges) {
         ss << "From Node " << src << ":\n";
         for (const auto& [dst, distance] : destinations) {
-            ss << "  → Node " << dst 
-               << " (distance: " << std::fixed << std::setprecision(2) 
+            ss << "  → Node " << dst << " (distance: " << fixed << setprecision(2) 
                << distance << "m)\n";
         }
     }
@@ -323,10 +310,10 @@ std::string Graph::printGraph() const {
         size_t max_edges = 0;
         for (const auto& [_, edge_list] : edges) {
             total_edges += edge_list.size();
-            max_edges = std::max(max_edges, edge_list.size());
+            max_edges = max(max_edges, edge_list.size());
         }
         double avg_edges = static_cast<double>(total_edges) / nodes.size();
-        ss << "Average Edges per Node: " << std::fixed << std::setprecision(2) 
+        ss << "Average Edges per Node: " << fixed << setprecision(2) 
            << avg_edges << "\n";
         ss << "Max Edges for a Node: " << max_edges << "\n";
     }
@@ -334,12 +321,12 @@ std::string Graph::printGraph() const {
     return ss.str();
 }
 
-bool Graph::verifyGraph() const {
+bool verifyGraph(const unordered_map<int64_t, pair<double, double>>& nodes, 
+                 const unordered_map<int64_t, vector<pair<int64_t, double>>>& edges) {
     // Check for invalid coordinates
     for (const auto& [id, coords] : nodes) {
-        if (coords.first < -90 || coords.first > 90 ||
-            coords.second < -180 || coords.second > 180) {
-            std::cout << "Invalid coordinates for node " << id << std::endl;
+        if (coords.first < -90 || coords.first > 90 || coords.second < -180 || coords.second > 180) {
+            cout << "Invalid coordinates for node " << id << endl;
             return false;
         }
     }
@@ -348,21 +335,21 @@ bool Graph::verifyGraph() const {
     for (const auto& [src, destinations] : edges) {
         // Check if source node exists
         if (!nodes.count(src)) {
-            std::cout << "Edge references non-existent source node " << src << std::endl;
+            cout << "Edge references non-existent source node " << src << endl;
             return false;
         }
         
         // Check each destination
         for (const auto& [dst, distance] : destinations) {
             if (!nodes.count(dst)) {
-                std::cout << "Edge references non-existent destination node " << dst << std::endl;
+                cout << "Edge references non-existent destination node " << dst << endl;
                 return false;
             }
             
             // Verify distance is positive and reasonable
             if (distance <= 0 || distance > 1000000) { // 1000km seems reasonable max
-                std::cout << "Suspicious distance " << distance 
-                         << "m between nodes " << src << " and " << dst << std::endl;
+                cout << "Suspicious distance " << distance 
+                     << "m between nodes " << src << " and " << dst << endl;
                 return false;
             }
             
@@ -374,9 +361,9 @@ bool Graph::verifyGraph() const {
                     if (rev_dst == src) {
                         found_reverse = true;
                         // Check if distances match
-                        if (std::abs(rev_dist - distance) > 0.01) {
-                            std::cout << "Inconsistent distances for bidirectional edge "
-                                     << src << " <-> " << dst << std::endl;
+                        if (abs(rev_dist - distance) > 0.01) {
+                            cout << "Inconsistent distances for bidirectional edge "
+                                 << src << " <-> " << dst << endl;
                             return false;
                         }
                         break;
@@ -384,7 +371,7 @@ bool Graph::verifyGraph() const {
                 }
             }
             if (!found_reverse) {
-                std::cout << "Missing reverse edge for " << src << " -> " << dst << std::endl;
+                cout << "Missing reverse edge for " << src << " -> " << dst << endl;
                 return false;
             }
         }
