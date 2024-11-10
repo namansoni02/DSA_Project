@@ -8,37 +8,47 @@
 
 using namespace std;
 
+//Haversine Formula: Used to calculate the great-circle distance between two points on the Earth's surface, considering the curvature of the Earth.
 // Haversine distance calculation
-double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
+double haversineDistance(double lat1, double lon1, double lat2, double lon2) 
+{
+    //Haversine Distance  formula components
     const double R = 6371000; // Earth radius in meters
     const double phi1 = lat1 * M_PI / 180;
     const double phi2 = lat2 * M_PI / 180;
     const double deltaPhi = (lat2 - lat1) * M_PI / 180;
     const double deltaLambda = (lon2 - lon1) * M_PI / 180;
 
+    //Haversine distance formula
     const double a = sin(deltaPhi / 2) * sin(deltaPhi / 2) +
                      cos(phi1) * cos(phi2) *
                      sin(deltaLambda / 2) * sin(deltaLambda / 2);
 
     const double c = 2 * atan2(sqrt(a), sqrt(1 - a));
+    
+    //multiplying the radian of earth with angle to get distance in meters
     return R * c;
 }
 
+// Calculates the angle (bearing) between three points: previous, current, and next
 double calculateAngle(const pair<double, double>& prev, const pair<double, double>& curr, 
                       const pair<double, double>& next, double prevAngle) {
-    double lat2 = curr.first * M_PI / 180;
+    double lat2 = curr.first * M_PI / 180;// Convert current latitude to radians
     double lon2 = curr.second * M_PI / 180;
     double lat3 = next.first * M_PI / 180;
     double lon3 = next.second * M_PI / 180;
 
+    // Calculate the angle between the current and next point using the spherical law of cosines
     double angle = atan2(
         sin(lon3 - lon2) * cos(lat3),
         cos(lat2) * sin(lat3) - sin(lat2) * cos(lat3) * cos(lon3 - lon2)
     );
 
+     // Convert the angle from radians to degrees and adjust for heading normalization
     double bearing = fmod((angle * 180 / M_PI + 360), 360);
     double angleDiff = bearing - prevAngle;
-    
+
+    // Normalize the bearing angle to keep it within the range [-180, 180]
     if (angleDiff > 180) {
         bearing -= 360;
     } else if (angleDiff < -180) {
@@ -48,6 +58,8 @@ double calculateAngle(const pair<double, double>& prev, const pair<double, doubl
     return bearing;
 }
 
+//Uses the Haversine distance between the current node and goal node as a heuristic for estimating how close the node is to the goal, helping prioritize nodes in pathfinding.
+// Heuristic function to estimate the distance between the current node and the goal
 // A* heuristic function
 double heuristic(int64_t node, int64_t goal, const unordered_map<int64_t, pair<double, double>>& nodes) {
     try {
